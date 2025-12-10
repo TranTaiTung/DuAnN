@@ -31,6 +31,20 @@ public class PlayerController : MonoBehaviour
     public float skill1Damage = 15f;
     public float skill2Damage = 20f;
 
+    [Header("Skill Cooldowns")]
+    public float skill1Cooldown = 12f;
+    public float skill2Cooldown = 15f;
+
+    private float skill1Timer = 0f;
+    private float skill2Timer = 0f;
+
+    // Tham chiếu tới UI button và text
+    public Button skill1Button;
+    public TextMeshProUGUI skill1Text;
+
+    public Button skill2Button;
+    public TextMeshProUGUI skill2Text;
+
     private float currentHP;
     private float currentMP;
     private float mpRegenInterval = 2f;
@@ -77,8 +91,33 @@ public class PlayerController : MonoBehaviour
             anim.SetTrigger("Attack");
         }
 
+        // Giảm timer theo thời gian
+        if (skill1Timer > 0)
+        {
+            skill1Timer -= Time.deltaTime;
+            skill1Text.text = Mathf.Ceil(skill1Timer).ToString(); // hiện số giây còn lại
+            skill1Button.interactable = false;
+        }
+        else
+        {
+            skill1Text.text = ""; // hết cooldown thì xóa text
+            skill1Button.interactable = true;
+        }
+
+        if (skill2Timer > 0)
+        {
+            skill2Timer -= Time.deltaTime;
+            skill2Text.text = Mathf.Ceil(skill2Timer).ToString();
+            skill2Button.interactable = false;
+        }
+        else
+        {
+            skill2Text.text = "";
+            skill2Button.interactable = true;
+        }
+
         // Skill 1
-        if (Input.GetKeyDown(KeyCode.E) && !isUsingSkill && currentMP >= 20f)
+        if (Input.GetKeyDown(KeyCode.E) && !isUsingSkill && currentMP >= 20f && skill1Timer <= 0)
         {
             UseMP(20f);
             isUsingSkill = true;
@@ -88,12 +127,14 @@ public class PlayerController : MonoBehaviour
             SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
             if (enemy != null)
             {
-                enemy.TakeDamage(skill1Damage); // gây 15 damage
+                enemy.TakeDamage(skill1Damage);
             }
+
+            skill1Timer = skill1Cooldown; // bắt đầu hồi chiêu
         }
 
         // Skill 2
-        if (Input.GetKeyDown(KeyCode.Q) && !isUsingSkill && currentMP >= 20f)
+        if (Input.GetKeyDown(KeyCode.Q) && !isUsingSkill && currentMP >= 20f && skill2Timer <= 0)
         {
             UseMP(20f);
             isUsingSkill = true;
@@ -103,8 +144,10 @@ public class PlayerController : MonoBehaviour
             SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
             if (enemy != null)
             {
-                enemy.TakeDamage(skill2Damage); // gây 20 damage
+                enemy.TakeDamage(skill2Damage);
             }
+
+            skill2Timer = skill2Cooldown; // bắt đầu hồi chiêu
         }
 
         // Hồi MP

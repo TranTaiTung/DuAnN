@@ -180,6 +180,11 @@ public class SkeletonAI : MonoBehaviour
         }
     }
 
+    public void DestroySelf()
+    {
+        Destroy(gameObject);
+    }
+
     public void TakePercentDamage(float percent)
     {
         float damageAmount = maxHealth * percent;
