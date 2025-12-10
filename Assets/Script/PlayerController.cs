@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,16 +11,29 @@ public class PlayerController : MonoBehaviour
     [Header("HP Settings")]
     public float maxHP = 100f;
     public Slider hpSlider;
-    public TextMeshProUGUI hpText; // Optional: để hiển thị số HP dạng text
+    public TextMeshProUGUI hpText;
 
     [Header("MP Settings")]
     public float maxMP = 100f;
     public Slider mpSlider;
     public TextMeshProUGUI mpText;
 
+    [Header("Energy Settings")]
+    public float maxEnergy = 100f;
+    public float currentEnergy = 0f;
+    public Slider energySlider;
+    private bool isBuffActive = false;
+    private float buffDuration = 15f;
+    private Coroutine buffCoroutine;
+
+    [Header("Combat Settings")]
+    public float normalAttackDamage = 10f;
+    public float skill1Damage = 15f;
+    public float skill2Damage = 20f;
+
     private float currentHP;
     private float currentMP;
-    private float mpRegenInterval = 2f; // Thời gian hồi MP (giây)
+    private float mpRegenInterval = 2f;
     private float mpRegenTimer = 0f;
     private Rigidbody2D rb;
     private Animator anim;
@@ -31,23 +45,22 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
-        // Khởi tạo HP,MP
         currentHP = maxHP;
         currentMP = maxMP;
         UpdateHPUI();
+        UpdateMPUI();
+        UpdateEnergyUI();
     }
 
     void Update()
     {
-        // Di chuyển trái/phải
+        // Di chuyển
         float move = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
-        // Flip hướng nhân vật
         if (move > 0) transform.localScale = new Vector3(1, 1, 1);
         else if (move < 0) transform.localScale = new Vector3(-1, 1, 1);
 
-        // Animation di chuyển
         anim.SetFloat("Speed", Mathf.Abs(move));
 
         // Nhảy
@@ -58,55 +71,53 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isJumping", true);
         }
 
-        // Tấn công thường
-        if (Input.GetKeyDown(KeyCode.Z) && !isUsingSkill)
+        // Attack thường
+        if (Input.GetMouseButtonDown(0) && !isUsingSkill)
         {
-            anim.SetBool("isAttacking", true);
+            anim.SetTrigger("Attack");
         }
 
         // Skill 1
         if (Input.GetKeyDown(KeyCode.E) && !isUsingSkill && currentMP >= 20f)
         {
             UseMP(20f);
-            Debug.Log("chieu 1 duoc kich hoat");
             isUsingSkill = true;
             anim.SetInteger("skillIndex", 1);
             anim.SetTrigger("UseSkill");
+
+            SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(skill1Damage); // gây 15 damage
+            }
         }
 
         // Skill 2
         if (Input.GetKeyDown(KeyCode.Q) && !isUsingSkill && currentMP >= 20f)
         {
             UseMP(20f);
-            Debug.Log("chieu 2 duoc kich hoat");
             isUsingSkill = true;
             anim.SetInteger("skillIndex", 2);
             anim.SetTrigger("UseSkill");
+
+            SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(skill2Damage); // gây 20 damage
+            }
         }
 
-        // Hồi MP theo thời gian
+        // Hồi MP
         mpRegenTimer += Time.deltaTime;
         if (mpRegenTimer >= mpRegenInterval)
         {
             mpRegenTimer = 0f;
-            currentMP += 5f; // Hồi 5 MP mỗi lần
-            currentMP = Mathf.Clamp(currentMP, 0, maxMP);
-            if (mpSlider != null)
-            {
-                mpSlider.maxValue = maxMP;
-                mpSlider.value = currentMP;
-            }
-            if (mpText != null)
-            {
-                mpText.text = $"{currentMP:F0}/{maxMP:F0}";
-            }
+            RegenerateMP(5f);
         }
-
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Check nếu chạm đất
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
@@ -114,13 +125,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Reset attack animation
-    public void EndAttack()
+    // Gọi từ Animation Event khi Attack animation chạm
+    public void DealAttackDamage()
     {
-        anim.SetBool("isAttacking", false);
+        SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
+        if (enemy != null)
+        {
+            enemy.TakeDamage(normalAttackDamage); // gây 10 damage
+        }
     }
 
-    // Hàm này có thể được gọi từ Animation Event khi animation skill kết thúc
     public void EndSkill()
     {
         anim.ResetTrigger("UseSkill");
@@ -128,21 +142,19 @@ public class PlayerController : MonoBehaviour
         isUsingSkill = false;
     }
 
-    // Hàm nhận sát thương
     public void TakeDamage(float damage)
     {
         currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP); // Đảm bảo HP không âm và không vượt quá maxHP
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         UpdateHPUI();
-
-        // Kiểm tra nếu HP = 0
-        if (currentHP <= 0)
-        {
-            Die();
-        }
+        if (currentHP <= 0) Die();
     }
 
-    // Hàm hồi HP
+    void Die()
+    {
+        Debug.Log("Player đã chết!");
+    }
+
     public void Heal(float amount)
     {
         currentHP += amount;
@@ -150,43 +162,35 @@ public class PlayerController : MonoBehaviour
         UpdateHPUI();
     }
 
-    // Cập nhật UI thanh HP và số HP
     void UpdateHPUI()
     {
-        // Cập nhật slider
         if (hpSlider != null)
         {
             hpSlider.maxValue = maxHP;
             hpSlider.value = currentHP;
         }
+        if (hpText != null) hpText.text = $"{currentHP:F0}/{maxHP:F0}";
+    }
 
-        // Cập nhật text hiển thị số HP (nếu có)
-        if (hpText != null)
+    void UpdateMPUI()
+    {
+        if (mpSlider != null)
         {
-            hpText.text = $"{currentHP:F0}/{maxHP:F0}";
+            mpSlider.maxValue = maxMP;
+            mpSlider.value = currentMP;
+        }
+        if (mpText != null) mpText.text = $"{currentMP:F0}/{maxMP:F0}";
+    }
+
+    void UpdateEnergyUI()
+    {
+        if (energySlider != null)
+        {
+            energySlider.maxValue = maxEnergy;
+            energySlider.value = currentEnergy;
         }
     }
 
-    // Hàm xử lý khi chết
-    void Die()
-    {
-        Debug.Log("Player đã chết!");
-        // Thêm logic xử lý khi chết ở đây (ví dụ: animation chết, respawn, game over, v.v.)
-    }
-
-    // Getter để lấy HP hiện tại
-    public float GetCurrentHP()
-    {
-        return currentHP;
-    }
-
-    // Getter để lấy HP tối đa
-    public float GetMaxHP()
-    {
-        return maxHP;
-    }
-
-    // Hàm sử dụng MP
     public void UseMP(float amount)
     {
         currentMP -= amount;
@@ -201,43 +205,64 @@ public class PlayerController : MonoBehaviour
         UpdateMPUI();
     }
 
-    // Cập nhật UI thanh MP và số MP
-    void UpdateMPUI()
+    public void AddEnergy(float amount)
     {
-        // Cập nhật slider
-        if (mpSlider != null)
+        currentEnergy += amount;
+        currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
+        UpdateEnergyUI();
+
+        if (currentEnergy >= maxEnergy && !isBuffActive)
         {
-            mpSlider.maxValue = maxMP;
-            mpSlider.value = currentMP;
-        }
-        // Cập nhật text hiển thị số MP (nếu có)
-        if (mpText != null)
-        {
-            mpText.text = $"{currentMP:F0}/{maxMP:F0}";
-        }
-    }
-    public void CastSkill1()
-    {
-        if (!isUsingSkill && currentMP >= 20f)
-        {
-            UseMP(20f);
-            Debug.Log("Chiêu 1 được kích hoạt qua UI");
-            isUsingSkill = true;
-            anim.SetInteger("skillIndex", 1);
-            anim.SetTrigger("UseSkill");
+            buffCoroutine = StartCoroutine(ApplyBuff());
         }
     }
 
-    public void CastSkill2()
+    IEnumerator ApplyBuff()
     {
-        if (!isUsingSkill && currentMP >= 20f)
-        {
-            UseMP(20f);
-            Debug.Log("Chiêu 2 được kích hoạt qua UI");
-            isUsingSkill = true;
-            anim.SetInteger("skillIndex", 2);
-            anim.SetTrigger("UseSkill");
-        }
+        isBuffActive = true;
+
+        float originalMaxHP = maxHP;
+        float originalMaxMP = maxMP;
+        float originalMoveSpeed = moveSpeed;
+        float originalNormalAttackDamage = normalAttackDamage;
+        float originalSkill1Damage = skill1Damage;
+        float originalSkill2Damage = skill2Damage;
+
+        // Buff 20%
+        maxHP *= 1.2f;
+        currentHP = maxHP;
+        maxMP *= 1.2f;
+        currentMP = maxMP;
+        moveSpeed *= 1.2f;
+        normalAttackDamage *= 1.2f;
+        skill1Damage *= 1.2f;
+        skill2Damage *= 1.2f;
+
+        UpdateHPUI();
+        UpdateMPUI();
+
+        Debug.Log("Buff 20% ATK, HP, MP trong 15s!");
+
+        yield return new WaitForSeconds(buffDuration);
+
+        // Reset về giá trị gốc
+        maxHP = originalMaxHP;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        maxMP = originalMaxMP;
+        currentMP = Mathf.Clamp(currentMP, 0, maxMP);
+        moveSpeed = originalMoveSpeed;
+        normalAttackDamage = originalNormalAttackDamage;
+        skill1Damage = originalSkill1Damage;
+        skill2Damage = originalSkill2Damage;
+
+        UpdateHPUI();
+        UpdateMPUI();
+
+        currentEnergy = 0f;
+        UpdateEnergyUI();
+
+        isBuffActive = false;
+        Debug.Log("Buff kết thúc, chỉ số quay về bình thường. Năng lượng reset về 0.");
     }
 
 }
