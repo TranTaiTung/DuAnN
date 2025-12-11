@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
 
     private float skill1Timer = 0f;
     private float skill2Timer = 0f;
+    public float attackRange = 1.5f;
 
     // Tham chiếu tới UI button và text
     public Button skill1Button;
@@ -127,7 +128,11 @@ public class PlayerController : MonoBehaviour
             SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
             if (enemy != null)
             {
-                enemy.TakeDamage(skill1Damage);
+                float dist = Vector2.Distance(transform.position, enemy.transform.position);
+                if (dist <= attackRange)
+                {
+                    enemy.TakeDamage(skill1Damage);
+                }
             }
 
             skill1Timer = skill1Cooldown; // bắt đầu hồi chiêu
@@ -144,7 +149,11 @@ public class PlayerController : MonoBehaviour
             SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
             if (enemy != null)
             {
-                enemy.TakeDamage(skill2Damage);
+                float dist = Vector2.Distance(transform.position, enemy.transform.position);
+                if (dist <= attackRange)
+                {
+                    enemy.TakeDamage(skill2Damage);
+                }
             }
 
             skill2Timer = skill2Cooldown; // bắt đầu hồi chiêu
@@ -174,8 +183,13 @@ public class PlayerController : MonoBehaviour
         SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
         if (enemy != null)
         {
-            enemy.TakeDamage(normalAttackDamage); // gây 10 damage
+            float dist = Vector2.Distance(transform.position, enemy.transform.position);
+            if (dist <= attackRange)
+            {
+                enemy.TakeDamage(normalAttackDamage);
+            }
         }
+
     }
 
     public void EndSkill()
