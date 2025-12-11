@@ -5,7 +5,7 @@ public class playbutton : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("Level 1");
+        SceneManager.LoadScene("Map1");
         Time.timeScale = 1f;
     }
 }
