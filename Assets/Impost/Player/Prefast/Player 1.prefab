@@ -1776,6 +1776,7 @@ MonoBehaviour:
   skill2Damage: 20
   skill1Cooldown: 12
   skill2Cooldown: 15
+  attackRange: 1.5
   skill1Button: {fileID: 2771252450452635486}
   skill1Text: {fileID: 8885107495144666913}
   skill2Button: {fileID: 7191844704196854010}
