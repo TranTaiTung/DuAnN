@@ -125,15 +125,7 @@ public class PlayerController : MonoBehaviour
             anim.SetInteger("skillIndex", 1);
             anim.SetTrigger("UseSkill");
 
-            SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
-            if (enemy != null)
-            {
-                float dist = Vector2.Distance(transform.position, enemy.transform.position);
-                if (dist <= attackRange)
-                {
-                    enemy.TakeDamage(skill1Damage);
-                }
-            }
+            TryDealDamageToEnemies(skill1Damage);
 
             skill1Timer = skill1Cooldown; // bắt đầu hồi chiêu
         }
@@ -146,15 +138,7 @@ public class PlayerController : MonoBehaviour
             anim.SetInteger("skillIndex", 2);
             anim.SetTrigger("UseSkill");
 
-            SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
-            if (enemy != null)
-            {
-                float dist = Vector2.Distance(transform.position, enemy.transform.position);
-                if (dist <= attackRange)
-                {
-                    enemy.TakeDamage(skill2Damage);
-                }
-            }
+            TryDealDamageToEnemies(skill2Damage);
 
             skill2Timer = skill2Cooldown; // bắt đầu hồi chiêu
         }
@@ -180,16 +164,7 @@ public class PlayerController : MonoBehaviour
     // Gọi từ Animation Event khi Attack animation chạm
     public void DealAttackDamage()
     {
-        SkeletonAI enemy = FindAnyObjectByType<SkeletonAI>();
-        if (enemy != null)
-        {
-            float dist = Vector2.Distance(transform.position, enemy.transform.position);
-            if (dist <= attackRange)
-            {
-                enemy.TakeDamage(normalAttackDamage);
-            }
-        }
-
+        TryDealDamageToEnemies(normalAttackDamage);
     }
 
     public void EndSkill()
@@ -197,6 +172,22 @@ public class PlayerController : MonoBehaviour
         anim.ResetTrigger("UseSkill");
         anim.SetInteger("skillIndex", 0);
         isUsingSkill = false;
+    }
+
+    // Gây sát thương lên các enemy trong phạm vi tấn công (hỗ trợ nhiều loại enemy)
+    void TryDealDamageToEnemies(float damage)
+    {
+        SkeletonAI skeleton = FindAnyObjectByType<SkeletonAI>();
+        if (skeleton != null && Vector2.Distance(transform.position, skeleton.transform.position) <= attackRange)
+        {
+            skeleton.TakeDamage(damage);
+        }
+
+        FlyingEnemy flying = FindAnyObjectByType<FlyingEnemy>();
+        if (flying != null && Vector2.Distance(transform.position, flying.transform.position) <= attackRange)
+        {
+            flying.TakeHit(Mathf.RoundToInt(damage));
+        }
     }
 
     public void TakeDamage(float damage)
@@ -320,6 +311,19 @@ public class PlayerController : MonoBehaviour
 
         isBuffActive = false;
         Debug.Log("Buff kết thúc, chỉ số quay về bình thường. Năng lượng reset về 0.");
+    }
+    public void ApplyBleed(int damagePerSecond, int duration)
+    {
+        StartCoroutine(BleedCoroutine(damagePerSecond, duration));
+    }
+
+    IEnumerator BleedCoroutine(int dps, int duration)
+    {
+        for (int i = 0; i < duration; i++)
+        {
+            TakeDamage(dps); // hoặc gọi hàm giảm máu của bạn
+            yield return new WaitForSeconds(1f);
+        }
     }
 
 }

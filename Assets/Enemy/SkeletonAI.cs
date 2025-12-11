@@ -116,15 +116,17 @@ public class SkeletonAI : MonoBehaviour
         // ATK1
         anim.SetTrigger("TriggerAttack1");
         yield return new WaitForSeconds(0.5f);
-        DealDamageToPlayer();
+        if (!isDead) DealDamageToPlayer();
 
+        if (isDead) { isAttacking = false; yield break; }
         yield return new WaitForSeconds(attackCooldown);
 
         // ATK2
         anim.SetTrigger("TriggerAttack2");
         yield return new WaitForSeconds(0.5f);
-        DealDamageToPlayer();
+        if (!isDead) DealDamageToPlayer();
 
+        if (isDead) { isAttacking = false; yield break; }
         yield return new WaitForSeconds(attackCooldown);
 
         isAttacking = false;
@@ -132,6 +134,7 @@ public class SkeletonAI : MonoBehaviour
 
     void DealDamageToPlayer()
     {
+        if (isDead) return;
         if (Vector2.Distance(transform.position, player.position) <= attackRange)
         {
             PlayerController pc = player.GetComponent<PlayerController>();
@@ -145,7 +148,9 @@ public class SkeletonAI : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDead) return;
         currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         anim.SetTrigger("TriggerHurt");
 
         if (hpSlider != null)
@@ -156,6 +161,7 @@ public class SkeletonAI : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+            return;
         }
 
     }
@@ -163,8 +169,12 @@ public class SkeletonAI : MonoBehaviour
     void Die()
     {
         isDead = true;
+        isAttacking = false;
+        StopAllCoroutines(); // dừng các chuỗi tấn công đang chạy
         anim.SetBool("isDead", true);
         rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;      // giữ nguyên vị trí, không rơi khỏi map
+        rb.simulated = false;      // tắt physics để enemy đứng yên khi chết
         GetComponent<Collider2D>().enabled = false;
         this.enabled = false;
 
