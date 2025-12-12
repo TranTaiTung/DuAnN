@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8579133779153864731}
   - component: {fileID: 5276708948525064631}
   - component: {fileID: 6148008267910403027}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6636768189742908088}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 551600354254229237}
   - component: {fileID: 1893948242681721588}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 6328133915896452262}
   - component: {fileID: 3639353815398789388}
   - component: {fileID: 1565325491406415880}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FlyingEye
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -7008412969330441016, guid: bd96d09390ad82247b050e54ee2647ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -353,7 +353,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5846795069046925267}
   m_BodyType: 0
-  m_Simulated: 0
+  m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -401,7 +401,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -443,7 +443,7 @@ GameObject:
   - component: {fileID: 7534136257327033781}
   - component: {fileID: 6907124651269580631}
   - component: {fileID: 5178958893462889767}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -518,7 +518,7 @@ GameObject:
   - component: {fileID: 3041056954665598476}
   - component: {fileID: 6859666672756700751}
   - component: {fileID: 2380187145372038954}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}

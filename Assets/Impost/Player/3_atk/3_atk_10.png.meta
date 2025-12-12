@@ -114,10 +114,10 @@ TextureImporter:
         serializedVersion: 2
         x: 127
         y: 0
-        width: 41
-        height: 38
+        width: 65
+        height: 47
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -130,77 +130,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: 3_atk_10_1
-      rect:
-        serializedVersion: 2
-        x: 158
-        y: 25
-        width: 31
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 96438a4ca541fcaa0800000000000000
-      internalID: -6138665387003726743
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 3_atk_10_2
-      rect:
-        serializedVersion: 2
-        x: 162
-        y: 17
-        width: 31
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e33334946982c7320800000000000000
-      internalID: 2556963314378945342
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 3_atk_10_3
-      rect:
-        serializedVersion: 2
-        x: 167
-        y: 5
-        width: 21
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fb276404ef8191e70800000000000000
-      internalID: 9086321203475804863
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 7d84d9e35fd0fad4f903e12ec299a9ff
     internalID: 0
     vertices: []
     indices: 

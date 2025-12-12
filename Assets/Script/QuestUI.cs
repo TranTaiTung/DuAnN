@@ -3,22 +3,18 @@ using UnityEngine;
 
 public class QuestUI : MonoBehaviour
 {
+    // [Header] và [Tooltip] đã được giữ nguyên
     [Header("UI References")]
-    [Tooltip("Text hiển thị mô tả nhiệm vụ")]
     public TextMeshProUGUI questDescriptionText;
-    
-    [Tooltip("Text hiển thị tiến độ (ví dụ: '2/3 Enemy')")]
-    public TextMeshProUGUI questProgressText;
+    public TextMeshProUGUI questProgressText; // Text hiển thị tiến độ 1/3, 2/3...
 
     [Header("Cài đặt hiển thị")]
-    [Tooltip("Tự động ẩn UI khi hoàn thành nhiệm vụ")]
     public bool hideOnComplete = false;
-    
-    [Tooltip("Thời gian delay trước khi ẩn UI (giây)")]
     public float hideDelay = 3f;
 
     private void Start()
     {
+        // Cập nhật UI ngay khi khởi động để hiện thị 0/3 ban đầu
         UpdateQuestUI();
     }
 
@@ -42,7 +38,7 @@ public class QuestUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Cập nhật UI nhiệm vụ
+    /// Cập nhật UI nhiệm vụ (Được gọi mỗi khi Enemy chết)
     /// </summary>
     public void UpdateQuestUI()
     {
@@ -59,35 +55,33 @@ public class QuestUI : MonoBehaviour
         int required = EnemyKillCounter.Instance.RequiredKills;
         bool isComplete = EnemyKillCounter.Instance.IsQuestComplete;
 
-        // Cập nhật mô tả nhiệm vụ
+        // =======================================================
+        // CẬP NHẬT MÔ TẢ NHIỆM VỤ
+        // =======================================================
         if (questDescriptionText != null)
         {
-            if (isComplete)
-            {
-                questDescriptionText.text = "✓ Nhiệm vụ: Giết Enemy";
-                questDescriptionText.color = Color.green;
-            }
-            else
-            {
-                questDescriptionText.text = "Nhiệm vụ: Giết Enemy";
-                questDescriptionText.color = Color.white;
-            }
+            string status = isComplete ? "✓ Hoàn thành:" : "Nhiệm vụ:";
+            questDescriptionText.text = $"{status} Tiêu diệt Enemy";
+            questDescriptionText.color = isComplete ? Color.green : Color.white;
         }
 
-        // Cập nhật tiến độ
+        // =======================================================
+        // CẬP NHẬT TIẾN ĐỘ (Phần bạn muốn hiển thị 1/3, 2/3)
+        // =======================================================
         if (questProgressText != null)
         {
             if (isComplete)
             {
-                questProgressText.text = $"✓ Hoàn thành! ({current}/{required})";
-                questProgressText.color = Color.green;
+                // Khi hoàn thành: hiển thị "3/3 Đã Xong!"
+                questProgressText.text = $"<color=green>{current}/{required} Đã Xong!</color>";
             }
             else
             {
-                questProgressText.text = $"Tiến độ: {current}/{required} Enemy";
-                questProgressText.color = Color.yellow;
+                // Khi chưa hoàn thành: hiển thị "1/3 Enemy" với màu vàng
+                questProgressText.text = $"<color=yellow>{current}/{required} Enemy</color>";
             }
         }
+        // =======================================================
 
         // Tự động ẩn UI khi hoàn thành
         if (isComplete && hideOnComplete)
@@ -99,15 +93,6 @@ public class QuestUI : MonoBehaviour
     private void HideUI()
     {
         gameObject.SetActive(false);
-    }
-
-    /// <summary>
-    /// Hiển thị lại UI (có thể gọi từ code khác)
-    /// </summary>
-    public void ShowUI()
-    {
-        gameObject.SetActive(true);
-        UpdateQuestUI();
     }
 }
 

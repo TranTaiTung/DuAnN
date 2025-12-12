@@ -109,9 +109,9 @@ TextureImporter:
         x: 128
         y: 0
         width: 76
-        height: 43
+        height: 45
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -124,33 +124,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: 2_atk_9_1
-      rect:
-        serializedVersion: 2
-        x: 163
-        y: 35
-        width: 26
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3b0afe85267a8ae00800000000000000
-      internalID: 1056278153459114163
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 231ecabb106b3f94ebe7d4ba9146b343
     internalID: 0
     vertices: []
     indices: 

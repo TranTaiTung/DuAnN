@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -30,6 +32,8 @@ public class PlayerController : MonoBehaviour
     public float normalAttackDamage = 10f;
     public float skill1Damage = 15f;
     public float skill2Damage = 20f;
+    [Tooltip("Layer(s) chứa Enemy để OverlapCircle chỉ quét mục tiêu hợp lệ")]
+    public LayerMask enemyLayer;
 
     [Header("Skill Cooldowns")]
     public float skill1Cooldown = 12f;
@@ -46,6 +50,9 @@ public class PlayerController : MonoBehaviour
     public Button skill2Button;
     public TextMeshProUGUI skill2Text;
 
+    //UI Lose
+    public GameObject loseImage;
+
     private float currentHP;
     private float currentMP;
     private float mpRegenInterval = 2f;
@@ -54,6 +61,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private bool isGrounded = true;
     private bool isUsingSkill = false;
+    private bool isDead = false;
 
     void Start()
     {
@@ -69,6 +77,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Không cho phép điều khiển nếu đã chết
+        if (isDead) return;
+
         // Di chuyển
         float move = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
@@ -177,21 +188,39 @@ public class PlayerController : MonoBehaviour
     // Gây sát thương lên các enemy trong phạm vi tấn công (hỗ trợ nhiều loại enemy)
     void TryDealDamageToEnemies(float damage)
     {
-        SkeletonAI skeleton = FindAnyObjectByType<SkeletonAI>();
-        if (skeleton != null && Vector2.Distance(transform.position, skeleton.transform.position) <= attackRange)
-        {
-            skeleton.TakeDamage(damage);
-        }
+        int mask = enemyLayer.value;
+        if (mask == 0) mask = Physics2D.DefaultRaycastLayers; // tránh bỏ sót nếu chưa cấu hình layer
 
-        FlyingEnemy flying = FindAnyObjectByType<FlyingEnemy>();
-        if (flying != null && Vector2.Distance(transform.position, flying.transform.position) <= attackRange)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange, mask);
+        if (hits.Length == 0) return;
+
+        // Tránh double-hit cùng một GameObject nếu có nhiều collider
+        HashSet<GameObject> processed = new HashSet<GameObject>();
+
+        foreach (Collider2D hit in hits)
         {
-            flying.TakeHit(Mathf.RoundToInt(damage));
+            GameObject target = hit.attachedRigidbody != null ? hit.attachedRigidbody.gameObject : hit.gameObject;
+            if (target == gameObject || processed.Contains(target)) continue;
+            processed.Add(target);
+
+            if (target.TryGetComponent(out SkeletonAI skeleton))
+            {
+                skeleton.TakeDamage(damage);
+                continue;
+            }
+
+            if (target.TryGetComponent(out FlyingEnemy flying))
+            {
+                flying.TakeHit(Mathf.RoundToInt(damage));
+            }
         }
     }
 
     public void TakeDamage(float damage)
     {
+        // Không nhận sát thương nếu đã chết
+        if (isDead) return;
+
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         UpdateHPUI();
@@ -200,11 +229,57 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Player đã chết!");
+        // Ngăn chặn gọi Die() nhiều lần
+        if (isDead) return;
+        
+        isDead = true;
+        
+        // Dừng di chuyển
+        rb.linearVelocity = Vector2.zero;
+        
+        // Chạy animation Death (sử dụng bool thay vì trigger để tránh lặp lại)
+        anim.SetBool("isDead", true);
+        anim.SetTrigger("Death");
+    }
+
+    public void OnDeathAnimationEnd()
+    {
+        // Hiện YOU LOSE và giữ player lại (không destroy để UI không bị phá nếu là con)
+        if (loseImage != null)
+        {
+            loseImage.SetActive(true);
+            Time.timeScale = 0f; // dừng game
+        }
+    }
+
+
+    IEnumerator ShowLoseImage(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (loseImage != null)
+        {
+            loseImage.SetActive(true);
+            Time.timeScale = 0f; // dừng toàn bộ game
+        }
+    }
+
+    public void ExitToMenu()
+    {
+        Time.timeScale = 1f; // đảm bảo thời gian trở lại bình thường khi về menu
+        SceneManager.LoadScene("Menu Screen");
+    }
+
+    public void AgainGame()
+    {
+        Time.timeScale = 1f; // đảm bảo thời gian trở lại bình thường khi chơi lại
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void Heal(float amount)
     {
+        // Không hồi máu nếu đã chết
+        if (isDead) return;
+        
         currentHP += amount;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         UpdateHPUI();
@@ -321,9 +396,17 @@ public class PlayerController : MonoBehaviour
     {
         for (int i = 0; i < duration; i++)
         {
+            if (isDead) yield break; // Dừng nếu đã chết
             TakeDamage(dps); // hoặc gọi hàm giảm máu của bạn
             yield return new WaitForSeconds(1f);
         }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        // Vẽ một hình tròn tại vị trí Player với bán kính là attackRange.
+        // Điều này chỉ hiển thị khi bạn chọn Player GameObject.
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 
 }
