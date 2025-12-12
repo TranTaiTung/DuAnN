@@ -240,8 +240,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 5.5, y: -4.3}
-  m_SizeDelta: {x: 59.9797, y: 101.668}
+  m_AnchoredPosition: {x: -1.7699, y: -4.3}
+  m_SizeDelta: {x: 120.5612, y: 101.668}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &483103945555709537
 CanvasRenderer:
@@ -1191,8 +1191,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10.5, y: 19.2}
-  m_SizeDelta: {x: 20.7122, y: 50}
+  m_AnchoredPosition: {x: 1.9191, y: -2.6094}
+  m_SizeDelta: {x: 112.1902, y: 93.6187}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3914008128966699001
 CanvasRenderer:
@@ -1557,7 +1557,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.3005519, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1567,7 +1567,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.8125, y: 2.25}
+  m_Size: {x: 1.3352232, y: 2.25}
   m_EdgeRadius: 0
 --- !u!50 &924227507849514001
 Rigidbody2D:
@@ -1609,7 +1609,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 5
-  jumpForce: 7
+  jumpForce: 9
   maxHP: 100
   hpSlider: {fileID: 1326704451773142285}
   hpText: {fileID: 2806810927422217347}

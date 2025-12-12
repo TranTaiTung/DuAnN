@@ -188,6 +188,12 @@ public class SkeletonAI : MonoBehaviour
         {
             playerController.AddEnergy(20f); // cộng năng lượng cho Player
         }
+
+        // Thông báo Enemy đã chết cho KillCounter
+        if (EnemyKillCounter.Instance != null)
+        {
+            EnemyKillCounter.Instance.AddKill();
+        }
     }
 
     public void DestroySelf()

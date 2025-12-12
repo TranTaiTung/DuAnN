@@ -138,6 +138,12 @@ public class FlyingEnemy : MonoBehaviour
         {
             playerController.AddEnergy(25f); // cộng năng lượng cho Player
         }
+
+        // Thông báo Enemy đã chết cho KillCounter
+        if (EnemyKillCounter.Instance != null)
+        {
+            EnemyKillCounter.Instance.AddKill();
+        }
     }
 
     void FlipSprite(Vector3 target)
