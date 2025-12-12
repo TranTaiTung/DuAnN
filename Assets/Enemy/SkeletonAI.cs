@@ -51,34 +51,44 @@ public class SkeletonAI : MonoBehaviour
 
         float distToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // Nếu đang attack thì không làm gì khác
-        if (isAttacking) return;
+        // *** SỬA ĐỔI QUAN TRỌNG: Đảm bảo không làm gì khác nếu đang tấn công.
+        if (isAttacking)
+        {
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y); // Giữ vận tốc X = 0, GIỮ TRỌNG LỰC (Y)
+            return; // DỪNG CẬP NHẬT
+        }
+        // *** KẾT THÚC SỬA ĐỔI
 
         if (distToPlayer <= attackRange)
         {
-            // Chỉ attack nếu Enemy đã đứng gần Player (không còn di chuyển chase)
-            rb.linearVelocity = Vector2.zero; // dừng di chuyển
+            // ... (Logic Attack - đã ổn)
+            rb.linearVelocity = Vector2.zero; // Dừng di chuyển
             anim.SetBool("isWalking", false);
             StartCoroutine(AttackSequence());
         }
         else if (distToPlayer <= detectionRange)
         {
-            // Chase Player nhưng KHÔNG gọi attack
+            // Chase Player
             ChasePlayer();
         }
         else
         {
             PatrolLogic();
         }
-
     }
 
     void PatrolLogic()
     {
         anim.SetBool("isWalking", true);
-        transform.position = Vector2.MoveTowards(transform.position, currentPatrolTarget.position, moveSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, currentPatrolTarget.position) < 0.2f)
+        // TÍNH TOÁN HƯỚNG DI CHUYỂN
+        Vector2 direction = (currentPatrolTarget.position - transform.position).normalized;
+
+        // SỬ DỤNG VELOCITY thay vì MoveTowards
+        rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+
+        // CHUYỂN LOGIC KIỂM TRA ĐIỂM DỪNG: Cần một khoảng cách lớn hơn 0.2f để tránh rung lắc
+        if (Mathf.Abs(transform.position.x - currentPatrolTarget.position.x) < 0.1f)
         {
             currentPatrolTarget = (currentPatrolTarget == patrolPointA) ? patrolPointB : patrolPointA;
         }
@@ -90,14 +100,16 @@ public class SkeletonAI : MonoBehaviour
     {
         anim.SetBool("isWalking", true);
 
-        // Enemy di chuyển về phía Player
-        transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
+        // Tính toán hướng di chuyển ngang
+        float moveDirection = Mathf.Sign(player.position.x - transform.position.x);
+
+        // ĐIỀU CHỈNH VELOCITY
+        rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocity.y);
+
         Flip(player.position.x);
 
-        // Đảm bảo không bật animation Attack khi chase
         anim.ResetTrigger("TriggerAttack1");
         anim.ResetTrigger("TriggerAttack2");
-
     }
 
     void Flip(float targetX)

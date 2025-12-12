@@ -111,5 +111,18 @@ public class EnemyKillCounter : MonoBehaviour
         OnKillCountChanged?.Invoke();
         Debug.Log($"[EnemyKillCounter] Đã reset nhiệm vụ: 0/{requiredKills}");
     }
+    public void SetQuestForNewScene(int requiredKillsForThisScene)
+    {
+        // 1. Reset số kill hiện tại về 0
+        currentKills = 0;
+
+        // 2. Thiết lập số kill cần thiết mới
+        requiredKills = requiredKillsForThisScene;
+
+        Debug.Log($"[EnemyKillCounter] Nhiệm vụ Scene mới: Yêu cầu {requiredKillsForThisScene} kills.");
+
+        // 3. Thông báo cập nhật UI (sẽ hiện 0/RequiredKills)
+        OnKillCountChanged?.Invoke();
+    }
 }
 
